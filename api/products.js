@@ -19,7 +19,6 @@ router.get("/", async (req, res) => {
 
 router.post(
   "/",
-  requireUser,
   requireAdmin,
   requireBody(["title", "description", "category", "brand", "price"]),
   async (req, res) => {
