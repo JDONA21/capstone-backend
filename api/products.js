@@ -3,9 +3,14 @@ const router = express.Router();
 export default router;
 
 import { getOrdersByUserIdAndProductId } from "#db/queries/orders";
-import { createProduct, getProductById, getProducts } from "#db/queries/products";
+import {
+  createProduct,
+  getProductById,
+  getProducts,
+} from "#db/queries/products";
 import requireUser from "#middleware/requireUser";
 import requireBody from "#middleware/requireBody";
+import requireAdmin from "#middleware/requireAdmin";
 
 router.get("/", async (req, res) => {
   const products = await getProducts();
@@ -13,7 +18,8 @@ router.get("/", async (req, res) => {
 });
 
 router.post(
-  "/",requireUser,
+  "/",
+  requireAdmin,
   requireBody(["title", "description", "category", "brand", "price"]),
   async (req, res) => {
     const {
