@@ -29,7 +29,7 @@ async function seed() {
       faker.internet.displayName(),
       faker.internet.email(),
       "password",
-      false,
+      true,
     );
     const order = await createOrder(
       "2020-01-01",
