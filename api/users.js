@@ -35,7 +35,7 @@ router
     res.send(token);
   });
 
-router.get("/me", getUserFromToken, async (req, res) => {
+router.get("/profile", getUserFromToken, async (req, res) => {
   const user = await getUserById(req.user.id);
 
   if (!user) {
