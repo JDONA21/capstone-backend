@@ -21,7 +21,7 @@ export async function createProduct(
   size,
   image_url,
   price,
-  stockQuantity)
+  stock_quantity)
   VALUES
     ($1, $2, $3, $4, $5, $6, $7, $8, $9)
   RETURNING *
