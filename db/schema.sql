@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username TEXT NOT NULL UNIQUE,
+  first_name TEXT NOT NULL, 
+  last_name TEXT NOT NULL, 
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
   is_admin BOOLEAN DEFAULT FALSE
@@ -17,6 +19,8 @@ CREATE TABLE products (
   description TEXT NOT NULL,
   category TEXT NOT NULL,
   brand VARCHAR(50),
+  color TEXT,
+  size TEXT,
   image_url TEXT,
   price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
   stock_quantity INT DEFAULT 0 CHECK (stock_quantity >= 0)

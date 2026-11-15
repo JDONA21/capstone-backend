@@ -5,6 +5,8 @@ export async function createProduct(
   description,
   category,
   brand,
+  color,
+  size,
   imageUrl,
   price,
   stockQuantity,
@@ -12,14 +14,16 @@ export async function createProduct(
   const sql = `
   INSERT INTO products
     (title,
-    description,
-    category,
-    brand,
-    image_url,
-    price,
-    stock_quantity)
+  description,
+  category,
+  brand,
+  color,
+  size,
+  image_url,
+  price,
+  stockQuantity)
   VALUES
-    ($1, $2, $3, $4, $5, $6, $7)
+    ($1, $2, $3, $4, $5, $6, $7, $8, $9)
   RETURNING *
   `;
   const {
@@ -29,6 +33,8 @@ export async function createProduct(
     description,
     category,
     brand,
+    color,
+    size,
     imageUrl,
     price,
     stockQuantity,
