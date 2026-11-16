@@ -55,8 +55,7 @@ async function seed() {
   for (let u = 1; u <= 9; u++) {
     const user = await createUser(
       faker.internet.displayName(),
-      faker.person.firstName(),
-      faker.person.lastName(),
+
       faker.internet.email(),
       "password",
       false,
