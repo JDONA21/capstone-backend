@@ -56,3 +56,39 @@ export async function getOrdersByUserIdAndProductId(userId, productId) {
   const { rows: orders } = await db.query(sql, [userId, productId]);
   return orders;
 }
+/**
+ * Find the user's current cart
+ * (their incomplete order)
+ */
+export async function getOpenOrderByUserId(userId) {
+  const sql = `
+    SELECT *
+    FROM orders
+    WHERE user_id = $1
+      AND completed = false
+  `;
+
+  const {
+    rows: [order],
+  } = await db.query(sql, [userId]);
+
+  return order;
+}
+
+/**
+ * Update an order's total
+ */
+export async function updateOrderTotal(orderId, total) {
+  const sql = `
+    UPDATE orders
+    SET total = $2
+    WHERE id = $1
+    RETURNING *
+  `;
+
+  const {
+    rows: [order],
+  } = await db.query(sql, [orderId, total]);
+
+  return order;
+}
