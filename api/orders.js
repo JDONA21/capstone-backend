@@ -8,6 +8,7 @@ import {
   getOrdersByUserId,
   getOpenOrderByUserId,
   updateOrderTotal,
+  completeOrder,
 } from "#db/queries/orders";
 import {
   createOrderProduct,
@@ -136,7 +137,18 @@ router.delete("/cart/:productId", async (req, res) => {
 
   res.send("Product removed from cart");
 });
+//complete order
+router.patch("/cart/complete", async (req, res) => {
+  const order = await getOpenOrderByUserId(req.user.id);
 
+  if (!order) {
+    return res.status(404).send("No active cart");
+  }
+
+  await completeOrder(order.id);
+
+  res.send("Order completed");
+});
 //params
 router.param("id", async (req, res, next, id) => {
   const order = await getOrderById(id);
