@@ -61,8 +61,6 @@ export async function getProductsByOrderId(orderId) {
   JOIN orders_products 
   ON products.id = orders_products.product_id
   WHERE orders_products.order_id = $1`;
-  const {
-    rows: [product],
-  } = await db.query(sql, [id]);
-  return product;
+  const { rows: products } = await db.query(sql, [orderId]);
+  return products;
 }
