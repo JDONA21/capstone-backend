@@ -91,4 +91,22 @@ export async function updateOrderTotal(orderId, total) {
   } = await db.query(sql, [orderId, total]);
 
   return order;
+
+}
+
+//add complete order
+
+export async function completeOrder(orderId) {
+  const sql = `
+    UPDATE orders
+    SET completed = true
+    WHERE id = $1
+    RETURNING *
+  `;
+
+  const {
+    rows: [order],
+  } = await db.query(sql, [orderId]);
+
+  return order;
 }
