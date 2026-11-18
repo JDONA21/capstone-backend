@@ -7,6 +7,7 @@ import getUserFromToken from "#middleware/getUserFromToken";
 import handlePostgresErrors from "#middleware/handlePostgresErrors";
 import cors from "cors";
 import morgan from "morgan";
+import cartsRouter from "#api/carts";
 import ordersRouter from "#api/orders";
 import productsRouter from "#api/products";
 
@@ -22,6 +23,7 @@ app.use(getUserFromToken);
 app.get("/", (req, res) => res.send("Hello, World!"));
 
 app.use("/users", usersRouter);
+app.use("/carts", cartsRouter);
 app.use("/orders", ordersRouter);
 app.use("/products", productsRouter);
 
