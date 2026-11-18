@@ -9,6 +9,9 @@ import {
   getOpenOrderByUserId,
   updateOrderTotal,
   completeOrder,
+  getAllOrders,
+  cancelOrder,
+  deleteOrder,
 } from "#db/queries/orders";
 import {
   createOrderProduct,
@@ -21,6 +24,11 @@ import requireBody from "#middleware/requireBody";
 import requireUser from "#middleware/requireUser";
 
 router.use(requireUser);
+
+function requireAdmin(req, res, next) {
+  if (!req.user.is_admin) return res.status(403).send("Admins only.");
+  next();
+}
 
 router.post(
   "/",
@@ -149,12 +157,18 @@ router.patch("/cart/complete", async (req, res) => {
 
   res.send("Order completed");
 });
+//admin: all orders (must come before /:id)
+router.get("/all", requireAdmin, async (req, res) => {
+  const orders = await getAllOrders();
+  res.send(orders);
+});
+
 //params
 router.param("id", async (req, res, next, id) => {
   const order = await getOrderById(id);
   if (!order) return res.status(404).send("Order not found");
 
-  if (order.user_id !== req.user.id)
+  if (order.user_id !== req.user.id && !req.user.is_admin)
     return res.status(403).send("This is not your order.");
 
   req.order = order;
@@ -182,4 +196,19 @@ router.post(
 router.get("/:id/products", async (req, res) => {
   const products = await getProductsByOrderId(req.order.id);
   res.send(products);
+});
+
+//cancel an order (owner or admin)
+router.patch("/:id/cancel", async (req, res) => {
+  if (req.order.canceled) {
+    return res.status(400).send("Order is already canceled.");
+  }
+  const order = await cancelOrder(req.order.id);
+  res.send(order);
+});
+
+//admin: delete any order
+router.delete("/:id", requireAdmin, async (req, res) => {
+  await deleteOrder(req.order.id);
+  res.sendStatus(204);
 });

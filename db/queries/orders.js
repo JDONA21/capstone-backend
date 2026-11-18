@@ -34,6 +34,12 @@ export async function getOrdersByUserId(userId) {
   return orders;
 }
 
+export async function getAllOrders() {
+  const sql = `SELECT * FROM orders ORDER BY id`;
+  const { rows: orders } = await db.query(sql);
+  return orders;
+}
+
 export async function getOrderById(id) {
   const sql = `SELECT * FROM orders WHERE id = $1`;
   const {
@@ -58,7 +64,7 @@ export async function getOrdersByUserIdAndProductId(userId, productId) {
 }
 /**
  * Find the user's current cart
- * (their incomplete order)
+ * (their incomplete, non-canceled order)
  */
 export async function getOpenOrderByUserId(userId) {
   const sql = `
@@ -66,6 +72,7 @@ export async function getOpenOrderByUserId(userId) {
     FROM orders
     WHERE user_id = $1
       AND completed = false
+      AND canceled = false
   `;
 
   const {
@@ -91,7 +98,6 @@ export async function updateOrderTotal(orderId, total) {
   } = await db.query(sql, [orderId, total]);
 
   return order;
-
 }
 
 //add complete order
@@ -100,6 +106,43 @@ export async function completeOrder(orderId) {
   const sql = `
     UPDATE orders
     SET completed = true
+    WHERE id = $1
+    RETURNING *
+  `;
+
+  const {
+    rows: [order],
+  } = await db.query(sql, [orderId]);
+
+  return order;
+}
+
+/**
+ * Mark an order as canceled
+ */
+export async function cancelOrder(orderId) {
+  const sql = `
+    UPDATE orders
+    SET canceled = true
+    WHERE id = $1
+    RETURNING *
+  `;
+
+  const {
+    rows: [order],
+  } = await db.query(sql, [orderId]);
+
+  return order;
+}
+
+/**
+ * Delete an order.
+ * Its orders_products rows are removed by ON DELETE CASCADE.
+ * Returns the deleted order, or undefined if it doesn't exist.
+ */
+export async function deleteOrder(orderId) {
+  const sql = `
+    DELETE FROM orders
     WHERE id = $1
     RETURNING *
   `;
