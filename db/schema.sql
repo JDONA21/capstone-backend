@@ -31,6 +31,7 @@ CREATE TABLE orders (
   shipping_address TEXT NOT NULL,
   total DECIMAL(10,2) NOT NULL,
   completed BOOLEAN DEFAULT FALSE,
+  canceled BOOLEAN NOT NULL DEFAULT FALSE,
    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
