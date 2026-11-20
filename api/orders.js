@@ -145,12 +145,13 @@ router.delete("/cart/:productId", async (req, res) => {
 
   res.send("Product removed from cart");
 });
+
 //complete order
 router.patch("/cart/complete", async (req, res) => {
   const order = await getOpenOrderByUserId(req.user.id);
 
-  if (!order) {
-    return res.status(404).send("No active cart");
+  if (!order || order.total_cents === 0) {
+    return res.status(400).send("Your cart is empty");
   }
 
   await completeOrder(order.id);
