@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
   username TEXT NOT NULL UNIQUE,
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
@@ -29,10 +31,9 @@ CREATE TABLE orders (
   date DATE NOT NULL,
   discount_code TEXT,
   shipping_address TEXT NOT NULL,
-  total DECIMAL(10,2) NOT NULL,
-  completed BOOLEAN DEFAULT FALSE,
-  canceled BOOLEAN NOT NULL DEFAULT FALSE,
-   user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+  total_cents INT NOT NULL DEFAULT 0 CHECK (total >= 0),
+  completed BOOLEAN DEFAULT FALSE,  
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE orders_products (
