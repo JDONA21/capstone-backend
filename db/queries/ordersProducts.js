@@ -1,5 +1,6 @@
 import db from "#db/client";
 
+// Add a product to an order or cart
 export async function createOrderProduct(orderId, productId, quantity) {
   const sql = `
   INSERT INTO orders_products
@@ -13,13 +14,9 @@ export async function createOrderProduct(orderId, productId, quantity) {
   } = await db.query(sql, [orderId, productId, quantity]);
   return orderProduct;
 }
-/**
- * Find one product in an order
- */
-export async function getOrderProduct(
-  orderId,
-  productId,
-) {
+
+// Get a specific product from an order or cart
+export async function getOrderProduct(orderId, productId) {
   const {
     rows: [orderProduct],
   } = await db.query(
@@ -35,14 +32,8 @@ export async function getOrderProduct(
   return orderProduct;
 }
 
-/**
- * Update quantity
- */
-export async function updateOrderProduct(
-  orderId,
-  productId,
-  quantity,
-) {
+// Update the quantity of a product in an order or cart
+export async function updateOrderProduct(orderId, productId, quantity) {
   const {
     rows: [orderProduct],
   } = await db.query(
@@ -59,13 +50,8 @@ export async function updateOrderProduct(
   return orderProduct;
 }
 
-/**
- * Delete product from order
- */
-export async function deleteOrderProduct(
-  orderId,
-  productId,
-) {
+// Remove a product from an order or cart
+export async function deleteOrderProduct(orderId, productId) {
   await db.query(
     `
     DELETE FROM orders_products
