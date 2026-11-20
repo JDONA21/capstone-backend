@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
   res.send({
     id: cart.id,
     items: products,
-    total: cart.total,
+    total_cents: cart.total_cents,
   });
 });
 
@@ -73,7 +73,7 @@ router.post(
     let total = 0;
 
     for (const product of products) {
-      total += product.price * product.quantity;
+      total += Math.round(product.price * 100) * product.quantity;
     }
 
     await updateOrderTotal(cart.id, total);
@@ -108,7 +108,7 @@ router.patch(
     let total = 0;
 
     for (const item of products) {
-      total += item.price * item.quantity;
+      total += Math.round(item.price * 100) * item.quantity;
     }
 
     await updateOrderTotal(cart.id, total);
@@ -141,7 +141,7 @@ router.delete("/:cartId/products/:productId", async (req, res) => {
   let total = 0;
 
   for (const item of products) {
-    total += item.price * item.quantity;
+    total += Math.round(item.price * 100) * item.quantity;
   }
 
   await updateOrderTotal(cart.id, total);
