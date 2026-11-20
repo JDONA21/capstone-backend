@@ -28,7 +28,7 @@ router.post(
     "color",
     "size",
     "imageUrl",
-    "price",
+    "price_cents",
     "stockQuantity",
   ]),
   async (req, res) => {
