@@ -3,24 +3,14 @@ const router = express.Router();
 export default router;
 
 import {
-  createOrder,
   getOrderById,
   getOrdersByUserId,
-  getOpenOrderByUserId,
-  updateOrderTotal,
-  completeOrder,
   getAllOrders,
   deleteOrder,
 } from "#db/queries/orders";
-import {
-  createOrderProduct,
-  getOrderProduct,
-  updateOrderProduct,
-  deleteOrderProduct,
-} from "#db/queries/ordersProducts";
 import { getProductsByOrderId } from "#db/queries/products";
-import requireBody from "#middleware/requireBody";
 import requireUser from "#middleware/requireUser";
+import requireAdmin from "#middleware/requireAdmin";
 
 router.use(requireUser);
 
@@ -47,6 +37,7 @@ router.post(
   },
 );
 
+// Get all orders for the current user
 router.get("/", async (req, res) => {
   const orders = await getOrdersByUserId(req.user.id);
   res.send(orders);
@@ -159,12 +150,13 @@ router.patch("/cart/complete", async (req, res) => {
   res.send("Order completed");
 });
 //admin: all orders (must come before /:id)
+// Get all orders (admin only)
 router.get("/all", requireAdmin, async (req, res) => {
   const orders = await getAllOrders();
   res.send(orders);
 });
 
-//params
+// Load an order by orderId and attach it to req.order
 router.param("id", async (req, res, next, id) => {
   const order = await getOrderById(id);
   if (!order) return res.status(404).send("Order not found");
@@ -176,30 +168,19 @@ router.param("id", async (req, res, next, id) => {
   next();
 });
 
+// Get a single order by orderId
 router.get("/:id", (req, res) => {
   res.send(req.order);
 });
 
-router.post(
-  "/:id/products",
-  requireBody(["productId", "quantity"]),
-  async (req, res) => {
-    const { productId, quantity } = req.body;
-    const orderProduct = await createOrderProduct(
-      req.order.id,
-      productId,
-      quantity,
-    );
-    res.status(201).send(orderProduct);
-  },
-);
-
+// Get all products in an order
 router.get("/:id/products", async (req, res) => {
   const products = await getProductsByOrderId(req.order.id);
   res.send(products);
 });
 
 //admin: delete any order
+// Delete an order (admin only)
 router.delete("/:id", requireAdmin, async (req, res) => {
   await deleteOrder(req.order.id);
   res.sendStatus(204);

@@ -1,5 +1,6 @@
 import db from "#db/client";
 
+// Create a new order
 export async function createOrder(
   date,
   discountCode,
@@ -28,23 +29,22 @@ export async function createOrder(
   return order;
 }
 
+// Get all orders for a specific user
 export async function getOrdersByUserId(userId) {
-  const sql = `SELECT * FROM orders WHERE user_id = $1`;
+  const sql = `SELECT *
+  FROM orders
+  WHERE user_id = $1
+  ORDER BY id DESC`;
   const { rows: orders } = await db.query(sql, [userId]);
   return orders;
 }
 
-export async function getAllOrders() {
-  const sql = `SELECT * FROM orders ORDER BY id`;
-  const { rows: orders } = await db.query(sql);
-  return orders;
-}
-
-export async function getOrderById(id) {
+// Get a single order by its ID
+export async function getOrderById(orderId) {
   const sql = `SELECT * FROM orders WHERE id = $1`;
   const {
     rows: [order],
-  } = await db.query(sql, [id]);
+  } = await db.query(sql, [orderId]);
   return order;
 }
 
@@ -67,11 +67,15 @@ export async function getOrdersByUserIdAndProductId(userId, productId) {
  * (their incomplete order)
  */
 export async function getOpenOrderByUserId(userId) {
+// Get the user's active shopping cart
+export async function getCartByUserId(userId) {
   const sql = `
     SELECT *
     FROM orders
     WHERE user_id = $1
       AND completed = false
+     AND completed = false
+    LIMIT 1
   `;
 
   const {
@@ -85,6 +89,8 @@ export async function getOpenOrderByUserId(userId) {
  * Update an order's total (in cents)
  */
 export async function updateOrderTotal(orderId, totalCents) {
+// Update an order's total price
+export async function updateOrderTotal(orderId, total) {
   const sql = `
     UPDATE orders
     SET total_cents = $2
@@ -99,8 +105,7 @@ export async function updateOrderTotal(orderId, totalCents) {
   return order;
 }
 
-//add complete order
-
+// Mark an order as completed
 export async function completeOrder(orderId) {
   const sql = `
     UPDATE orders
@@ -121,6 +126,7 @@ export async function completeOrder(orderId) {
  * Its orders_products rows are removed by ON DELETE CASCADE.
  * Returns the deleted order, or undefined if it doesn't exist.
  */
+// Delete an order
 export async function deleteOrder(orderId) {
   const sql = `
     DELETE FROM orders
