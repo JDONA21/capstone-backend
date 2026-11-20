@@ -150,3 +150,16 @@ router.delete("/:cartId/products/:productId", async (req, res) => {
 });
 
 export default router;
+
+//complete order
+router.patch("/cart/complete", async (req, res) => {
+  const order = await getOpenOrderByUserId(req.user.id);
+
+  if (!order) {
+    return res.status(404).send("No active cart");
+  }
+
+  await completeOrder(order.id);
+
+  res.send("Order completed");
+});
