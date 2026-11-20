@@ -31,7 +31,7 @@ CREATE TABLE orders (
   date DATE NOT NULL,
   discount_code TEXT,
   shipping_address TEXT NOT NULL,
-  total_cents INT NOT NULL DEFAULT 0 CHECK (total >= 0),
+  total_cents INT NOT NULL DEFAULT 0 CHECK (total_cents >= 0),
   completed BOOLEAN DEFAULT FALSE,  
   user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
