@@ -3,9 +3,8 @@ const router = express.Router();
 
 import {
   createOrder,
-  getCartByUserId,
+  getOpenOrderByUserId,
   updateOrderTotal,
-  completeOrder,
 } from "#db/queries/orders";
 
 import {
@@ -21,25 +20,10 @@ import requireBody from "#middleware/requireBody";
 
 router.use(requireUser);
 
-// Recalculate and update the cart total
-async function refreshCartTotal(cartId) {
-  const products = await getProductsByOrderId(cartId);
-
-  let total = 0;
-
-  for (const product of products) {
-    total += product.price * product.quantity;
-  }
-
-  await updateOrderTotal(cartId, total);
-}
-
-// Get the current user's cart
+// GET /cart - Get cart and products
 router.get("/", async (req, res) => {
-  // Find the user's active cart
-  let cart = await getCartByUserId(req.user.id);
+  let cart = await getOpenOrderByUserId(req.user.id);
 
-  // Create a cart if the user doesn't have one
   if (!cart) {
     cart = await createOrder(
       new Date(),
@@ -51,7 +35,6 @@ router.get("/", async (req, res) => {
     );
   }
 
-  // Get all products in the cart
   const products = await getProductsByOrderId(cart.id);
 
   res.send({
@@ -61,94 +44,109 @@ router.get("/", async (req, res) => {
   });
 });
 
-// Add a product to the cart
-router.post("/products", requireBody(["productId"]), async (req, res) => {
-  const { productId } = req.body;
+// POST /cart/:cartId/products - Add product
+router.post(
+  "/:cartId/products",
+  requireBody(["productId"]),
+  async (req, res) => {
+    const { productId } = req.body;
+    const cart = await getOpenOrderByUserId(req.user.id);
 
-  // Find the user's active cart
-  const cart = await getCartByUserId(req.user.id);
+    if (!cart || cart.id != req.params.cartId) {
+      return res.status(404).send("Cart not found");
+    }
 
-  // Check if product already exists in the cart
-  const existingProduct = await getOrderProduct(cart.id, productId);
+    const existingProduct = await getOrderProduct(cart.id, productId);
 
-  if (existingProduct) {
-    // Increase quantity if product already exists
-    await updateOrderProduct(cart.id, productId, existingProduct.quantity + 1);
-  } else {
-    // Add product to cart
-    await createOrderProduct(cart.id, productId, 1);
-  }
+    if (existingProduct) {
+      await updateOrderProduct(
+        cart.id,
+        productId,
+        existingProduct.quantity + 1,
+      );
+    } else {
+      await createOrderProduct(cart.id, productId, 1);
+    }
 
-  // Update cart total
-  await refreshCartTotal(cart.id);
+    const products = await getProductsByOrderId(cart.id);
 
-  res.status(201).send("Product added to cart");
-});
+    let total = 0;
 
-// Update a product quantity in the cart
+    for (const product of products) {
+      total += product.price * product.quantity;
+    }
+
+    await updateOrderTotal(cart.id, total);
+
+    res.status(201).send("Product added to cart");
+  },
+);
+
 router.patch(
-  "/products/:productId",
+  "/:cartId/products/:productId",
   requireBody(["quantity"]),
   async (req, res) => {
-    const { productId } = req.params;
+    const { cartId, productId } = req.params;
     const { quantity } = req.body;
 
-    // Find the user's active cart
-    const cart = await getCartByUserId(req.user.id);
+    const cart = await getOpenOrderByUserId(req.user.id);
 
-    // Check if product exists in the cart
+    if (!cart || cart.id != cartId) {
+      return res.status(404).send("Cart not found");
+    }
+
     const product = await getOrderProduct(cart.id, productId);
 
     if (!product) {
       return res.status(404).send("Product not found in cart");
     }
 
-    // Update quantity
     await updateOrderProduct(cart.id, productId, quantity);
 
-    // Update cart total
-    await refreshCartTotal(cart.id);
+    const products = await getProductsByOrderId(cart.id);
+
+    let total = 0;
+
+    for (const item of products) {
+      total += item.price * item.quantity;
+    }
+
+    await updateOrderTotal(cart.id, total);
 
     res.send("Product quantity updated");
   },
 );
 
-// Remove a product from the cart
-router.delete("/products/:productId", async (req, res) => {
-  const { productId } = req.params;
+// DELETE /cart/:cartId/products/:productId - Remove product
 
-  // Find the user's active cart
-  const cart = await getCartByUserId(req.user.id);
+router.delete("/:cartId/products/:productId", async (req, res) => {
+  const { cartId, productId } = req.params;
 
-  // Check if product exists in the cart
+  const cart = await getOpenOrderByUserId(req.user.id);
+
+  if (!cart || cart.id != cartId) {
+    return res.status(404).send("Cart not found");
+  }
+
   const product = await getOrderProduct(cart.id, productId);
 
   if (!product) {
     return res.status(404).send("Product not found in cart");
   }
 
-  // Remove product from cart
   await deleteOrderProduct(cart.id, productId);
 
-  // Update cart total
-  await refreshCartTotal(cart.id);
+  const products = await getProductsByOrderId(cart.id);
 
-  res.send("Product removed from cart");
-});
+  let total = 0;
 
-// Complete checkout for the current cart
-router.patch("/complete", async (req, res) => {
-  // Find the user's active cart
-  const cart = await getCartByUserId(req.user.id);
-
-  if (!cart) {
-    return res.status(404).send("No active cart");
+  for (const item of products) {
+    total += item.price * item.quantity;
   }
 
-  // Mark cart as completed order
-  await completeOrder(cart.id);
+  await updateOrderTotal(cart.id, total);
 
-  res.send("Order completed");
+  res.send("Product removed from cart");
 });
 
 export default router;

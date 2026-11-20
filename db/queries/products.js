@@ -1,6 +1,5 @@
 import db from "#db/client";
 
-// Create a new product in the database
 export async function createProduct(
   title,
   description,
@@ -43,14 +42,12 @@ export async function createProduct(
   return product;
 }
 
-// Get all products
 export async function getProducts() {
   const sql = `SELECT * FROM products`;
   const { rows: products } = await db.query(sql);
   return products;
 }
 
-// Get a single product by its ID
 export async function getProductById(id) {
   const sql = `SELECT * FROM products WHERE id = $1`;
   const {
@@ -59,7 +56,6 @@ export async function getProductById(id) {
   return product;
 }
 
-// Get all products that belong to a specific order/cart
 export async function getProductsByOrderId(orderId) {
   const sql = `
     SELECT
