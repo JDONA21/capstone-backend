@@ -4,13 +4,13 @@ export async function createOrder(
   date,
   discountCode,
   shippingAddress,
-  total,
+  totalCents,
   completed,
   userId,
 ) {
   const sql = `
   INSERT INTO orders
-    (date, discount_code, shipping_address, total, completed, user_id)
+    (date, discount_code, shipping_address, total_cents, completed, user_id)
   VALUES
     ($1, $2, $3, $4, $5, $6)
   RETURNING *
@@ -21,7 +21,7 @@ export async function createOrder(
     date,
     discountCode,
     shippingAddress,
-    total,
+    totalCents,
     completed,
     userId,
   ]);
@@ -64,7 +64,7 @@ export async function getOrdersByUserIdAndProductId(userId, productId) {
 }
 /**
  * Find the user's current cart
- * (their incomplete, non-canceled order)
+ * (their incomplete order)
  */
 export async function getOpenOrderByUserId(userId) {
   const sql = `
@@ -72,7 +72,6 @@ export async function getOpenOrderByUserId(userId) {
     FROM orders
     WHERE user_id = $1
       AND completed = false
-      AND canceled = false
   `;
 
   const {
@@ -83,19 +82,19 @@ export async function getOpenOrderByUserId(userId) {
 }
 
 /**
- * Update an order's total
+ * Update an order's total (in cents)
  */
-export async function updateOrderTotal(orderId, total) {
+export async function updateOrderTotal(orderId, totalCents) {
   const sql = `
     UPDATE orders
-    SET total = $2
+    SET total_cents = $2
     WHERE id = $1
     RETURNING *
   `;
 
   const {
     rows: [order],
-  } = await db.query(sql, [orderId, total]);
+  } = await db.query(sql, [orderId, totalCents]);
 
   return order;
 }
@@ -106,24 +105,6 @@ export async function completeOrder(orderId) {
   const sql = `
     UPDATE orders
     SET completed = true
-    WHERE id = $1
-    RETURNING *
-  `;
-
-  const {
-    rows: [order],
-  } = await db.query(sql, [orderId]);
-
-  return order;
-}
-
-/**
- * Mark an order as canceled
- */
-export async function cancelOrder(orderId) {
-  const sql = `
-    UPDATE orders
-    SET canceled = true
     WHERE id = $1
     RETURNING *
   `;

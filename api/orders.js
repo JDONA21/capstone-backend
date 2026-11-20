@@ -10,7 +10,6 @@ import {
   updateOrderTotal,
   completeOrder,
   getAllOrders,
-  cancelOrder,
   deleteOrder,
 } from "#db/queries/orders";
 import {
@@ -32,14 +31,15 @@ function requireAdmin(req, res, next) {
 
 router.post(
   "/",
-  requireBody(["date", "shippingAddress", "total"]),
+  requireBody(["date", "shippingAddress", "totalCents"]),
   async (req, res) => {
-    const { date, discountCode, shippingAddress, total, completed } = req.body;
+    const { date, discountCode, shippingAddress, totalCents, completed } =
+      req.body;
     const order = await createOrder(
       date,
       discountCode,
       shippingAddress,
-      total,
+      totalCents,
       completed,
       req.user.id,
     );
@@ -59,7 +59,7 @@ router.get("/cart", async (req, res) => {
   if (!order) {
     return res.send({
       items: [],
-      total: 0,
+      total_cents: 0,
     });
   }
 
@@ -67,7 +67,7 @@ router.get("/cart", async (req, res) => {
 
   res.send({
     items: products,
-    total: order.total,
+    total_cents: order.total_cents,
   });
 });
 
@@ -101,7 +101,7 @@ router.post("/cart", requireBody(["productId"]), async (req, res) => {
   let total = 0;
 
   for (let i = 0; i < products.length; i++) {
-    total += products[i].price * products[i].quantity;
+    total += Math.round(products[i].price * 100) * products[i].quantity;
   }
 
   await updateOrderTotal(order.id, total);
@@ -138,7 +138,7 @@ router.delete("/cart/:productId", async (req, res) => {
   let total = 0;
 
   for (let i = 0; i < products.length; i++) {
-    total += products[i].price * products[i].quantity;
+    total += Math.round(products[i].price * 100) * products[i].quantity;
   }
 
   await updateOrderTotal(order.id, total);
@@ -196,15 +196,6 @@ router.post(
 router.get("/:id/products", async (req, res) => {
   const products = await getProductsByOrderId(req.order.id);
   res.send(products);
-});
-
-//cancel an order (owner or admin)
-router.patch("/:id/cancel", async (req, res) => {
-  if (req.order.canceled) {
-    return res.status(400).send("Order is already canceled.");
-  }
-  const order = await cancelOrder(req.order.id);
-  res.send(order);
 });
 
 //admin: delete any order
