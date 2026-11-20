@@ -9,15 +9,25 @@ import {
 } from "#db/queries/users";
 import requireBody from "#middleware/requireBody";
 import { createToken } from "#utils/jwt";
+import { isAdminEmail } from "#utils/admin";
 import getUserFromToken from "#middleware/getUserFromToken";
 
 router
   .route("/register")
   .post(
-    requireBody(["username", "email", "password", "isAdmin"]),
+    requireBody(["firstName", "lastName", "username", "email", "password"]),
     async (req, res) => {
-      const { username, email, password, isAdmin } = req.body;
-      const user = await createUser(username, email, password, isAdmin);
+      const { firstName, lastName, username, email, password } = req.body;
+      // Only emails listed in ADMIN_EMAILS (.env) become admins
+      const isAdmin = isAdminEmail(email);
+      const user = await createUser(
+        firstName,
+        lastName,
+        username,
+        email,
+        password,
+        isAdmin,
+      );
 
       const token = await createToken({ id: user.id });
       res.status(201).send(token);
