@@ -11,13 +11,31 @@ import requireBody from "#middleware/requireBody";
 import { createToken } from "#utils/jwt";
 import getUserFromToken from "#middleware/getUserFromToken";
 
+// Only emails listed in ADMIN_EMAILS (.env) can become admins
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((email) => email.trim().toLowerCase())
+  .filter(Boolean);
+
+function isAdminEmail(email) {
+  return ADMIN_EMAILS.includes(String(email).trim().toLowerCase());
+}
+
 router
   .route("/register")
   .post(
-    requireBody(["username", "email", "password", "isAdmin"]),
+    requireBody(["firstName", "lastName", "username", "email", "password"]),
     async (req, res) => {
-      const { username, email, password, isAdmin } = req.body;
-      const user = await createUser(username, email, password, isAdmin);
+      const { firstName, lastName, username, email, password } = req.body;
+      const isAdmin = isAdminEmail(email);
+      const user = await createUser(
+        firstName,
+        lastName,
+        username,
+        email,
+        password,
+        isAdmin,
+      );
 
       const token = await createToken({ id: user.id });
       res.status(201).send(token);
