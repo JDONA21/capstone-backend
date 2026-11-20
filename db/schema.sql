@@ -16,11 +16,11 @@ CREATE TABLE products (
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   category TEXT NOT NULL,
-  brand VARCHAR(50),
+  brand TEXT,
   color TEXT,
   size TEXT,
   image_url TEXT,
-  price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+  price_cents INT NOT NULL CHECK (price_cents >= 0),
   stock_quantity INT DEFAULT 0 CHECK (stock_quantity >= 0)
 );
 

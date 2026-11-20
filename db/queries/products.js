@@ -20,7 +20,7 @@ export async function createProduct(
   color,
   size,
   image_url,
-  price,
+  price_cents,
   stock_quantity)
   VALUES
     ($1, $2, $3, $4, $5, $6, $7, $8, $9)
