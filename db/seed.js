@@ -54,8 +54,9 @@ async function seed() {
   // Create  9 users
   for (let u = 1; u <= 9; u++) {
     const user = await createUser(
+      faker.person.firstName(),
+      faker.person.lastName(),
       faker.internet.displayName(),
-
       faker.internet.email(),
       "password",
       false,
@@ -69,7 +70,7 @@ async function seed() {
         date.split("T")[0], // date
         "", // discountCode
         faker.location.streetAddress(), // shippingAddress
-        5.0, // total
+        500, // total in cents ($5.00)
         false, // completed
         user.id, // userId
       );

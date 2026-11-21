@@ -2,21 +2,22 @@ import express from "express";
 const router = express.Router();
 export default router;
 
-import { getOrdersByUserIdAndProductId } from "#db/queries/orders";
 import {
   createProduct,
   getProductById,
   getProducts,
 } from "#db/queries/products";
-import requireUser from "#middleware/requireUser";
+
 import requireBody from "#middleware/requireBody";
 import requireAdmin from "#middleware/requireAdmin";
 
+// Get all products
 router.get("/", async (req, res) => {
   const products = await getProducts();
   res.send(products);
 });
 
+// Create a new product (admin only)
 router.post(
   "/",
   requireAdmin,
@@ -57,21 +58,14 @@ router.post(
     res.status(201).send(product);
   },
 );
-router.param("id", async (req, res, next, id) => {
-  const product = await getProductById(id);
-  if (!product) return res.status(404).send("Product not found");
-  req.product = product;
-  next();
-});
 
-router.get("/:id", (req, res) => {
-  res.send(req.product);
-});
+// Get a single product by ID (Id -> productID)
+router.get("/:id", async (req, res) => {
+  const product = await getProductById(req.params.id);
 
-router.get("/:id/orders", requireUser, async (req, res) => {
-  const orders = await getOrdersByUserIdAndProductId(
-    req.user.id,
-    req.product.id,
-  );
-  res.send(orders);
+  if (!product) {
+    return res.status(404).send("Product not found");
+  }
+
+  res.send(product);
 });
