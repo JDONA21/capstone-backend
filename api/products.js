@@ -41,7 +41,7 @@ router.post(
       color,
       size,
       imageUrl,
-      price,
+      priceCents,
       stockQuantity,
     } = req.body;
     const product = await createProduct(
@@ -52,7 +52,7 @@ router.post(
       color,
       size,
       imageUrl,
-      price,
+      priceCents,
       stockQuantity,
     );
     res.status(201).send(product);

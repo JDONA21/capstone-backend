@@ -29,7 +29,7 @@ async function refreshCartTotal(cartId) {
 
   // Calculate total in cents
   for (const product of products) {
-    totalCents += Math.round(product.price * 100) * product.quantity;
+    totalCents += product.price_cents * product.quantity;
   }
 
   await updateOrderTotal(cartId, totalCents);
