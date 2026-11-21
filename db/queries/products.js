@@ -9,7 +9,7 @@ export async function createProduct(
   color,
   size,
   imageUrl,
-  price,
+  priceCents,
   stockQuantity,
 ) {
   const sql = `
@@ -37,7 +37,7 @@ export async function createProduct(
     color,
     size,
     imageUrl,
-    price,
+    priceCents,
     stockQuantity,
   ]);
   return product;
