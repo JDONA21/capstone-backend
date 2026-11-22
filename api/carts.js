@@ -15,13 +15,13 @@ import {
   deleteOrderProduct,
 } from "#db/queries/ordersProducts";
 
-import { getProductsByOrderId } from "#db/queries/products";
+import { getProductsByOrderId, updateProductStock } from "#db/queries/products";
 import requireUser from "#middleware/requireUser";
 import requireBody from "#middleware/requireBody";
 
 router.use(requireUser);
 
-// Recalculate and update the cart total
+/* Recalculate and update the cart total */
 async function refreshCartTotal(cartId) {
   const products = await getProductsByOrderId(cartId);
 
@@ -35,7 +35,7 @@ async function refreshCartTotal(cartId) {
   await updateOrderTotal(cartId, totalCents);
 }
 
-// Get the current user's cart
+/* Get the current user's cart */
 router.get("/", async (req, res) => {
   // Find the user's active cart
   let cart = await getCartByUserId(req.user.id);
@@ -62,7 +62,7 @@ router.get("/", async (req, res) => {
   });
 });
 
-// Add a product to the cart
+/* Add a product to the cart */
 router.post(
   "/:cartId/products",
   requireBody(["productId"]),
@@ -98,7 +98,7 @@ router.post(
   },
 );
 
-// Update a product quantity in the cart
+/* Update a product quantity in the cart */
 router.patch(
   "/:cartId/products/:productId",
   requireBody(["quantity"]),
@@ -120,6 +120,19 @@ router.patch(
       return res.status(404).send("Product not found in cart");
     }
 
+    // Get products in cart and find this product
+    const products = await getProductsByOrderId(cart.id);
+
+    const product = products.find((p) => p.id === Number(productId));
+
+    console.log(product);
+    console.log(quantity);
+
+    // Prevent quantity from exceeding available stock
+    if (quantity > product.stock_quantity) {
+      return res.status(400).send("Not enough stock available");
+    }
+
     // Update quantity
     await updateOrderProduct(cart.id, productId, quantity);
 
@@ -130,7 +143,7 @@ router.patch(
   },
 );
 
-// Remove a product from the cart
+/* Remove a product from the cart */
 router.delete("/:cartId/products/:productId", async (req, res) => {
   const { productId } = req.params;
 
@@ -157,7 +170,7 @@ router.delete("/:cartId/products/:productId", async (req, res) => {
   res.send("Product removed from cart");
 });
 
-// Complete checkout for the current cart
+/* Complete checkout for the current cart  */
 router.patch("/complete", async (req, res) => {
   // Find the user's active cart
   const cart = await getCartByUserId(req.user.id);
@@ -169,6 +182,12 @@ router.patch("/complete", async (req, res) => {
   // Prevent checkout with an empty cart
   if (cart.total_cents === 0) {
     return res.status(400).send("Your cart is empty");
+  }
+
+  const products = await getProductsByOrderId(cart.id);
+
+  for (const product of products) {
+    await updateProductStock(product.id, product.quantity);
   }
 
   // Mark cart as completed order

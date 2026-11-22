@@ -75,3 +75,19 @@ export async function getProductsByOrderId(orderId) {
 
   return products;
 }
+
+// Reduce product stock after a successful purchase
+export async function updateProductStock(productId, quantityPurchased) {
+  const sql = `
+    UPDATE products
+    SET stock_quantity = stock_quantity - $1
+    WHERE id = $2
+    RETURNING *;
+  `;
+
+  const {
+    rows: [product],
+  } = await db.query(sql, [quantityPurchased, productId]);
+
+  return product;
+}

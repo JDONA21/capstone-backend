@@ -46,7 +46,7 @@ async function seed() {
         `${ranks[j][0]}`, // size
         `https://deckofcardsapi.com/static/img/${ranks[j][0]}${suits[i][1]}.png`, // image_url
         100, // price total in cents ($1.00)
-        1, // stock_quantity
+        faker.number.int({ min: 5, max: 20 }), // stock_quantity
       );
     }
   }
