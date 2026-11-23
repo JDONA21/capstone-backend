@@ -133,7 +133,7 @@ Authorization: Bearer YOUR_TOKEN_HERE
 
 We tested every route in Yaak, first on localhost, then on the live Render URL.
 
-![Yaak request](docs/screenshots/yaak-request.png)
+![Yaak request]
 
 Example `GET /products` response (`200 OK`):
 
