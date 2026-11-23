@@ -58,29 +58,27 @@ Passwords are always hashed, and protected routes check for a valid token.
 
 ---
 
-## 🛣 API Routes
+## 🛣️ API Routes
 
 All routes start with `http://localhost:3000` · 🔒 = must be logged in · 👑 = admin only
 
-### 👤 User Routes
-
-| Method | Route             | What it does        | Access |
-| ------ | ----------------- | ------------------- | :----: |
-| POST   | `/users/register` | Create an account   | Anyone |
-| POST   | `/users/login`    | Log in, get a token | Anyone |
-| GET    | `/users/me`       | Get your own info   |   🔒   |
-| GET    | `/products`       | Get all products    | Anyone |
-| GET    | `/products/:id`   | Get one product     | Anyone |
-
-### 👑 Admin Routes
-
-These routes only work for admins. If a regular user tries them, the server blocks the request.
-
-| Method | Route           | What it does     | Access |
-| ------ | --------------- | ---------------- | :----: |
-| POST   | `/products`     | Add a product    |   👑   |
-| PUT    | `/products/:id` | Update a product |   👑   |
-| DELETE | `/products/:id` | Delete a product |   👑   |
+| Section  | Method | Route              | What it does                                  | Access |
+| -------- | ------ | ------------------ | --------------------------------------------- | ------ |
+| 👤 User  | POST   | `/users/register`  | Create an account                             | Anyone |
+| 👤 User  | POST   | `/users/login`     | Log in, get a token                           | Anyone |
+| 👤 User  | GET    | `/users/me`        | Get your own info                             | 🔒     |
+| 👤 User  | GET    | `/products`        | Get all products                              | Anyone |
+| 👤 User  | GET    | `/products/:id`    | Get one product                               | Anyone |
+| 🛒 Cart  | GET    | `/cart`            | Get your cart                                 | 🔒     |
+| 🛒 Cart  | POST   | `/cart`            | Add a product to your cart                    | 🔒     |
+| 🛒 Cart  | PUT    | `/cart/:productId` | Change how many of a product are in your cart | 🔒     |
+| 🛒 Cart  | DELETE | `/cart/:productId` | Remove a product from your cart               | 🔒     |
+| 🛒 Cart  | DELETE | `/cart`            | Empty your cart                               | 🔒     |
+| 🛒 Cart  | POST   | `/orders`          | Check out (turns your cart into an order)     | 🔒     |
+| 🛒 Cart  | GET    | `/orders`          | Get your past orders                          | 🔒     |
+| 👑 Admin | POST   | `/products`        | Add a product                                 | 👑     |
+| 👑 Admin | PUT    | `/products/:id`    | Update a product                              | 👑     |
+| 👑 Admin | DELETE | `/products/:id`    | Delete a product                              | 👑     |
 
 **How to become an admin:** Register through `POST /users/register` using the email that matches `ADMIN_EMAIL` in your `.env` file. Then log in, and your token will let you use the 👑 routes.
 
