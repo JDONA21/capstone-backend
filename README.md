@@ -45,49 +45,6 @@ Passwords are always hashed, and protected routes check for a valid token.
 
 ![Database Table](<Screenshot 2026-11-23 094154.png>)
 
-```mermaid
-erDiagram
-    users ||--o{ orders : "places"
-    orders ||--o{ orders_products : "has"
-    products ||--o{ orders_products : "appears in"
-
-    users {
-        serial id PK
-        text first_name
-        text last_name
-        text username UK
-        text email UK
-        text password
-        boolean is_admin
-    }
-    orders {
-        serial id PK
-        date date
-        text discount_code
-        text shipping_address
-        int total_cents
-        boolean completed
-        int user_id FK
-    }
-    products {
-        serial id PK
-        text title
-        text description
-        text category
-        text brand
-        text color
-        text size
-        text image_url
-        int price_cents
-        int stock_quantity
-    }
-    orders_products {
-        int order_id PK,FK
-        int product_id PK,FK
-        int quantity
-    }
-```
-
 | Table             | Stores                                                     |
 | ----------------- | ---------------------------------------------------------- |
 | `users`           | Accounts (hashed passwords, `is_admin` flag)               |
@@ -132,7 +89,9 @@ These routes only work for admins. If a regular user tries them, the server bloc
 For 🔒 and 👑 routes, send your token:
 
 ```
+
 Authorization: Bearer YOUR_TOKEN_HERE
+
 ```
 
 > ⏳ The live server is on Render's free plan, so the first request after a while can take 30–60 seconds.
@@ -167,10 +126,6 @@ Example `GET /products` response (`200 OK`):
 To view the database in DBeaver: **New Database Connection** → **PostgreSQL** → database `deckmart` → enter your Postgres login → **Finish**.
 
 ---
-
-## 💭 What I Learned
-
-[✏️ In your own words: database design, building an API with Express, hashing and JWTs, teamwork with Git.]
 
 ## 🔮 Future Improvements
 
