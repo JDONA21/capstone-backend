@@ -45,7 +45,7 @@ Passwords are always hashed, and protected routes check for a valid token.
 
 ## 🗄 Database
 
-![ERD](docs/screenshots/erd.png)
+![Database Table](<Screenshot 2026-11-23 094154.png>)
 
 ```mermaid
 erDiagram
@@ -133,7 +133,7 @@ Authorization: Bearer YOUR_TOKEN_HERE
 
 We tested every route in Yaak, first on localhost, then on the live Render URL.
 
-![Yaak request]
+![Yaak request](<Screenshot 2026-11-23 093456.png>)
 
 Example `GET /products` response (`200 OK`):
 
