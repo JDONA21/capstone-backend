@@ -16,8 +16,8 @@ DeckMart is our Capstone backend: a Node/Express server that stores the app's da
 - A database for users, products, and orders
 - Secure sign-up and login
 - Routes only logged-in users or admins can use
-
-This repo is the backend only. The website is in the frontend repo.
+  add
+  This repo is the backend only. The website is in the frontend repo.
 
 ---
 
@@ -103,19 +103,31 @@ erDiagram
 
 ## 🛣 API Routes
 
-Base URL: `http://localhost:3000/api` (or `https://capstone-backend-api-yzce.onrender.com/api` live)
-🔒 = logged in · 👑 = admin
+All routes start with `http://localhost:3000` · 🔒 = must be logged in · 👑 = admin only
+
+### 👤 User Routes
 
 | Method | Route             | What it does        | Access |
 | ------ | ----------------- | ------------------- | :----: |
 | POST   | `/users/register` | Create an account   | Anyone |
 | POST   | `/users/login`    | Log in, get a token | Anyone |
 | GET    | `/users/me`       | Get your own info   |   🔒   |
-| GET    | `/decks`          | Get all decks       | Anyone |
-| GET    | `/decks/:id`      | Get one deck        | Anyone |
-| POST   | `/decks`          | Add a deck          |   👑   |
-| PUT    | `/decks/:id`      | Update a deck       |   👑   |
-| DELETE | `/decks/:id`      | Delete a deck       |   👑   |
+| GET    | `/products`       | Get all products    | Anyone |
+| GET    | `/products/:id`   | Get one product     | Anyone |
+
+### 👑 Admin Routes
+
+These routes only work for admins. If a regular user tries them, the server blocks the request.
+
+| Method | Route           | What it does     | Access |
+| ------ | --------------- | ---------------- | :----: |
+| POST   | `/products`     | Add a product    |   👑   |
+| PUT    | `/products/:id` | Update a product |   👑   |
+| DELETE | `/products/:id` | Delete a product |   👑   |
+
+**How to become an admin:** Register through `POST /users/register` using the email that matches `ADMIN_EMAIL` in your `.env` file. Then log in, and your token will let you use the 👑 routes.
+
+**Using the live version:** Our backend is deployed, so you can also test the routes without running anything on your computer. Just swap `http://localhost:3000` for `https://capstone-backend-api-yzce.onrender.com`. Example: `https://capstone-backend-api-yzce.onrender.com/users/login`
 
 For 🔒 and 👑 routes, send your token:
 
