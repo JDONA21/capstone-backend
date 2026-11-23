@@ -12,8 +12,6 @@ DeckMart is our Capstone backend: a Node/Express server that stores the app's da
 
 ## 🎯 Goals
 
-[✏️ The problem, in 1–2 sentences.]
-
 - A REST API for the frontend
 - A database for users, products, and orders
 - Secure sign-up and login
